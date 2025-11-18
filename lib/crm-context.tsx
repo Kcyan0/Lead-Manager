@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Lead, Meeting, mockLeads, mockMeetings, mockUsers, User, Project, mockProjects, Sale, mockSales, Gateway, mockGateways } from './database';
+import { useAuth } from './auth-context';
 
 interface CRMContextType {
   projects: Project[];
@@ -36,7 +37,9 @@ interface CRMContextType {
 const CRMContext = createContext<CRMContextType | undefined>(undefined);
 
 export function CRMProvider({ children }: { children: ReactNode }) {
-  const [projects, setProjects] = useState<Project[]>(mockProjects);
+  const { currentUser } = useAuth();
+  
+  const [allProjects, setAllProjects] = useState<Project[]>(mockProjects);
   const [currentProjectId, setCurrentProjectId] = useState<string>('1');
   
   const [allLeads, setAllLeads] = useState<Lead[]>(mockLeads);
@@ -44,6 +47,19 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const [allUsers, setAllUsers] = useState<User[]>(mockUsers);
   const [allSales, setAllSales] = useState<Sale[]>(mockSales);
   const [allGateways, setAllGateways] = useState<Gateway[]>(mockGateways);
+
+  const projects = currentUser 
+    ? allProjects.filter(project => currentUser.projectIds.includes(project.id))
+    : [];
+
+  useEffect(() => {
+    if (currentUser && projects.length > 0) {
+      const hasAccess = projects.some(p => p.id === currentProjectId);
+      if (!hasAccess) {
+        setCurrentProjectId(projects[0].id);
+      }
+    }
+  }, [currentUser, projects, currentProjectId]);
 
   const leads = allLeads.filter(lead => lead.projectId === currentProjectId);
   const meetings = allMeetings.filter(meeting => meeting.projectId === currentProjectId);
@@ -57,12 +73,17 @@ export function CRMProvider({ children }: { children: ReactNode }) {
       id: String(Date.now()),
       data_criacao: new Date(),
     };
-    setProjects(prev => [...prev, newProject]);
+    setAllProjects(prev => [...prev, newProject]);
+    
+    if (currentUser) {
+      currentUser.projectIds.push(newProject.id);
+    }
+    
     setCurrentProjectId(newProject.id);
   };
 
   const updateProject = (projectId: string, updates: Partial<Project>) => {
-    setProjects(prevProjects =>
+    setAllProjects(prevProjects =>
       prevProjects.map(project =>
         project.id === projectId ? { ...project, ...updates } : project
       )
@@ -70,13 +91,21 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   };
 
   const removeProject = (projectId: string) => {
-    setProjects(prevProjects => {
+    setAllProjects(prevProjects => {
       const filtered = prevProjects.filter(project => project.id !== projectId);
       if (filtered.length > 0 && currentProjectId === projectId) {
         setCurrentProjectId(filtered[0].id);
       }
       return filtered;
     });
+    
+    if (currentUser) {
+      const index = currentUser.projectIds.indexOf(projectId);
+      if (index > -1) {
+        currentUser.projectIds.splice(index, 1);
+      }
+    }
+    
     setAllLeads(prevLeads => prevLeads.filter(lead => lead.projectId !== projectId));
     setAllMeetings(prevMeetings => prevMeetings.filter(meeting => meeting.projectId !== projectId));
     setAllUsers(prevUsers => prevUsers.filter(user => user.projectId !== projectId));

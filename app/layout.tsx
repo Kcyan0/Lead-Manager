@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Figtree } from 'next/font/google'
 import "./globals.css"
+import { AuthProvider } from '@/lib/auth-context'
 import { CRMProvider } from '@/lib/crm-context'
 
 const figtree = Figtree({
@@ -24,9 +25,11 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${figtree.variable} antialiased`}>
       <body className="font-sans">
-        <CRMProvider>
-          {children}
-        </CRMProvider>
+        <AuthProvider>
+          <CRMProvider>
+            {children}
+          </CRMProvider>
+        </AuthProvider>
       </body>
     </html>
   )

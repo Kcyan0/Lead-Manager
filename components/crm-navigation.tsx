@@ -7,8 +7,10 @@ import { KanbanScreen } from './kanban-screen';
 import { CalendarScreen } from './calendar-screen';
 import { TeamAdminScreen } from './team-admin-screen';
 import { FinancialScreen } from './financial-screen';
-import { LayoutDashboard, KanbanSquare, Calendar, Users, DollarSign } from 'lucide-react';
+import { ProjectAccessScreen } from './project-access-screen';
+import { LayoutDashboard, KanbanSquare, Calendar, Users, DollarSign, Shield } from 'lucide-react';
 import ProjectSelector from './project-selector';
+import { UserMenu } from './user-menu';
 
 export function CRMNavigation() {
   return (
@@ -20,14 +22,17 @@ export function CRMNavigation() {
               <h1 className="text-2xl font-bold text-primary">Lead Manager</h1>
               <p className="text-sm text-muted-foreground">Sistema de Gestão de Prospecção Comercial</p>
             </div>
-            <ProjectSelector />
+            <div className="flex items-center gap-4">
+              <ProjectSelector />
+              <UserMenu />
+            </div>
           </div>
         </div>
       </div>
       
       <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-[1000px] glass">
+          <TabsList className="grid w-full grid-cols-6 lg:w-[1200px] glass">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
@@ -47,6 +52,10 @@ export function CRMNavigation() {
             <TabsTrigger value="team" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Time
+            </TabsTrigger>
+            <TabsTrigger value="access" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Acesso
             </TabsTrigger>
           </TabsList>
           
@@ -68,6 +77,10 @@ export function CRMNavigation() {
 
           <TabsContent value="team">
             <TeamAdminScreen />
+          </TabsContent>
+
+          <TabsContent value="access">
+            <ProjectAccessScreen />
           </TabsContent>
         </Tabs>
       </div>

@@ -106,6 +106,16 @@ export interface Gateway {
   projectId: string;
 }
 
+// Account interface for authentication
+export interface Account {
+  id: string;
+  email: string;
+  password: string; // In production, this would be hashed
+  nome: string;
+  data_criacao: Date;
+  projectIds: string[]; // Projects this user has access to
+}
+
 // Mock data for SDRs
 export const mockUsers: User[] = [
   { id: '1', nome: 'Carlos Silva', funcao: 'SDR', projectId: '1' },
@@ -519,6 +529,26 @@ export const mockSales: Sale[] = [
   },
 ];
 
+// Mock data for accounts
+export const mockAccounts: Account[] = [
+  {
+    id: '1',
+    email: 'admin@leadmanager.com',
+    password: 'admin123',
+    nome: 'Administrador',
+    data_criacao: new Date('2024-01-01'),
+    projectIds: ['1', '2', '3']
+  },
+  {
+    id: '2',
+    email: 'usuario@email.com',
+    password: 'senha123',
+    nome: 'Usuário Teste',
+    data_criacao: new Date('2024-01-15'),
+    projectIds: ['2']
+  },
+];
+
 // Helper functions to get user name by id
 export function getUserName(userId: string): string {
   const user = mockUsers.find(u => u.id === userId);
@@ -564,4 +594,9 @@ export function getSalesByProject(projectId: string): Sale[] {
 // Helper to get gateways by project
 export function getGatewaysByProject(projectId: string): Gateway[] {
   return mockGateways.filter(gateway => gateway.projectId === projectId);
+}
+
+// Helper to get account by email
+export function getAccountByEmail(email: string): Account | undefined {
+  return mockAccounts.find(account => account.email === email);
 }
